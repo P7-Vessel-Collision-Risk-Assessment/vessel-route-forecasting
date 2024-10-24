@@ -1,0 +1,5 @@
+tensorflow[and-cuda]
+numpy
+pandas
+scikit-learn
+flask
