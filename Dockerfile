@@ -24,8 +24,7 @@ RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
 # Copy the local files to the container
 COPY . /app
 
-# Expose the port (optional, depending on your application)
-EXPOSE 8888
+EXPOSE 80
 
 # Command to run your app (e.g., a Python script or Jupyter Notebook)
-CMD ["python", "src/app.py", "--port", "8888"]
+CMD ["python", "src/app.py", "--port", "80"]

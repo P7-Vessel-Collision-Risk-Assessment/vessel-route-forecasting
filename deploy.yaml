@@ -1,47 +1,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tensorflow-app
+  name: vrf
   labels:
-    app: tensorflow-app
+    app: vrf
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: tensorflow-app
+      app: vrf
   template:
     metadata:
       labels:
-        app: tensorflow-app
+        app: vrf
     spec:
       containers:
-        - name: tensorflow-app-container
-          image: tensorflow/tensorflow:latest-gpu
+        - name: vrf-container
+          image: vrf
           ports:
-            - containerPort: 8888
+            - containerPort: 80
           resources:
             limits:
               nvidia.com/gpu: 1 # Specify GPU resources for this container
           volumeMounts:
             - name: app-volume
               mountPath: /app
-          command: ['python', 'src/app.py', '--port', '8888']
+          command: ['python', 'src/app.py', '--port', '8080']
       volumes:
         - name: app-volume
           hostPath:
-            path: /path/on/host # Adjust this path to where your app is stored
+            path: /home/ubuntu/vcra/vessel-route-forecasting
             type: Directory
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: tensorflow-app-service
+  name: vrf-service
 spec:
   selector:
-    app: tensorflow-app
+    app: vrf
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8888
+      targetPort: 80
   type: LoadBalancer # This exposes your app externally

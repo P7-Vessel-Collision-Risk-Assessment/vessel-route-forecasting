@@ -1,0 +1,11 @@
+version: '3'
+services:
+  vrf:
+    build: .
+    image: vrf
+    expose:
+      - 8080
+    ports:
+      - '8080:80'
+    volumes:
+      - ./vrf:/app/vrf
