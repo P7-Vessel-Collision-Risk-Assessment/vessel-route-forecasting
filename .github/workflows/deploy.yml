@@ -26,6 +26,7 @@ jobs:
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
         run: |
+          mkdir -p ~/.kube
           echo "$KUBECONFIG" > ~/.kube/config
           ctr -n k8s.io images import $(docker save vrf:latest | docker load)
 
