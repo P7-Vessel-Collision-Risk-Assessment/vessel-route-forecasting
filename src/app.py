@@ -28,6 +28,7 @@ def model_info():
             "input_shape": config["layers"][0]["config"]["batch_shape"],
             "gpus_available": tf.config.list_physical_devices("GPU"),
             "test": "test2",
+            "test2": "test2",
         }
     )
 
