@@ -1,4 +1,4 @@
-name: Deploy to K3s Locally
+name: Deploy to K3s
 
 on:
   push:
@@ -12,6 +12,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Clean up Docker space
+        run: |
+          docker system prune -af
+          docker volume prune -f
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
