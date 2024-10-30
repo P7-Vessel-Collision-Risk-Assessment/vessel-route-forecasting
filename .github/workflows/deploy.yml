@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  packages: write
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -15,7 +19,7 @@ jobs:
 
       - name: Set up QHCR Authentication
         env:
-          CR_PAT: ${{ secrets.GITHUB_TOKEN }} # Use a PAT or your GitHub token with repo:write permission
+          CR_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build Docker image
