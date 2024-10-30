@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: vrf-container
-          image: madssr/vrf
+          image: vrf:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           # resources:
