@@ -1,4 +1,4 @@
-name: Deploy to K3s
+name: Deploy to K3s Using GHCR
 
 on:
   push:
@@ -13,23 +13,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Clean up Docker space
-        run: |
-          docker system prune -af
-          docker volume prune -f
+      - name: Set up QHCR Authentication
+        env:
+          CR_PAT: ${{ secrets.GITHUB_TOKEN }} # Use a PAT or your GitHub token with repo:write permission
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build Docker image
         run: |
-          docker build -t vrf:latest .
+          docker build -t ghcr.io/${{ github.repository }}/vrf:latest .
 
-      - name: Load image into K3s cluster
+      - name: Push Docker image to GHCR
+        run: |
+          docker push ghcr.io/${{ github.repository }}/vrf:latest
+
+      - name: Set up Kubeconfig
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
         run: |
           mkdir -p ~/.kube
           echo "$KUBECONFIG" > ~/.kube/config
-          ctr -n k8s.io images import $(docker save vrf:latest | docker load)
 
       - name: Deploy application to K3s
         run: |
+          kubectl set image deployment/my-app my-app=ghcr.io/${{ github.repository }}/vrf:latest
           kubectl apply -f deploy.yaml
