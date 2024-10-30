@@ -3,4 +3,6 @@ __pycache__/
 .vscode/
 .env
 .DS_Store
-venv
+venv/
+.venv/
+.github/
