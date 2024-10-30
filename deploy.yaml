@@ -33,7 +33,7 @@ spec:
             path: /home/ubuntu/vcra/vessel-route-forecasting
             type: Directory
       imagePullSecrets:
-        - name: ghcr-secret
+        - name: ghcr-secret-2
 
 ---
 apiVersion: v1
