@@ -22,13 +22,20 @@ jobs:
           CR_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Build Docker image
-        run: |
-          docker build -t ghcr.io/${{ github.repository }}/vrf:latest .
+      # - name: Build Docker image
+      #   run: |
+      #     docker build -t ghcr.io/${{ github.repository }}/vrf:latest .
 
-      - name: Push Docker image to GHCR
-        run: |
-          docker push ghcr.io/${{ github.repository }}/vrf:latest
+      # - name: Push Docker image to GHCR
+      #   run: |
+      #     docker push ghcr.io/${{ github.repository }}/vrf:latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}/vrf:latest
 
       - name: Set up Kubeconfig
         env:
