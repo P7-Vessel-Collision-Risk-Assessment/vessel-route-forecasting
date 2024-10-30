@@ -39,5 +39,4 @@ jobs:
 
       - name: Deploy application to K3s
         run: |
-          kubectl set image deployment/my-app my-app=ghcr.io/${{ github.repository }}/vrf:latest
           kubectl apply -f deploy.yaml
