@@ -33,6 +33,15 @@ def model_info():
     )
 
 
+@app.route("/test")
+def model_info():
+    return jsonify(
+        {
+            "hello": "world",
+        }
+    )
+
+
 @app.route("/predict", methods=["POST"])
 def predict():
 

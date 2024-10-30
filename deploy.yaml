@@ -17,6 +17,7 @@ spec:
       containers:
         - name: vrf-container
           image: ghcr.io/p7-vcra/vessel-route-forecasting/vrf:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           # resources:
