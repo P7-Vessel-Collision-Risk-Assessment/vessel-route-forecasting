@@ -17,6 +17,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up cache for Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/.cache/docker
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
       - name: Set up GHCR Authentication
         env:
           CR_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -27,7 +35,15 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}/vrf:latest
+          tags: |
+            ghcr.io/${{ github.repository }}/vrf:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/vrf:latest
+          cache-from: type=local,src=/home/runner/.cache/docker
+          cache-to: type=local,dest=/home/runner/.cache/docker
+
+      - name: Update image tag in deploy.yaml
+        run: |
+          sed -i "s|ghcr.io/${{ github.repository }}/vrf:latest|ghcr.io/${{ github.repository }}/vrf:${{ github.sha }}|g" deploy.yaml
 
       - name: Set up Kubeconfig
         env:
