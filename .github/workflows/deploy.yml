@@ -15,36 +15,24 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          driver: docker-container
-
-      - name: Set up cache for Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/.cache/docker
-          key: ${{ runner.os }}-docker-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
-
-      - name: Set up GHCR Authentication
+      - name: Authenticate with GitHub Container Registry
         env:
           CR_PAT: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin || exit 1
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: |
             ghcr.io/${{ github.repository }}/vrf:${{ github.sha }}
             ghcr.io/${{ github.repository }}/vrf:latest
-          cache-from: type=local,src=/home/runner/.cache/docker
-          cache-to: type=local,dest=/home/runner/.cache/docker
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/vrf:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/vrf:cache,mode=max
 
       - name: Update image tag in deploy.yaml
         run: |
@@ -56,6 +44,10 @@ jobs:
         run: |
           mkdir -p ~/.kube
           echo "$KUBECONFIG" > ~/.kube/config
+
+      - name: Verify kubectl version
+        run: |
+          kubectl version --client
 
       - name: Deploy application to K3s
         run: |
