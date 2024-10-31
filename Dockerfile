@@ -27,4 +27,4 @@ COPY . /app
 EXPOSE 8080
 
 # Command to run your app (e.g., a Python script or Jupyter Notebook)
-CMD ["python", "src/app.py", "--port", "80"]
+CMD ["python", "src/app.py", "--port", "8080"]

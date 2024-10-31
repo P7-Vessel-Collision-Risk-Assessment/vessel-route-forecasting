@@ -28,13 +28,12 @@ def model_info():
             "input_shape": config["layers"][0]["config"]["batch_shape"],
             "gpus_available": tf.config.list_physical_devices("GPU"),
             "test": "test2",
-            "test2": "test2",
         }
     )
 
 
 @app.route("/test")
-def model_info():
+def test():
     return jsonify(
         {
             "hello": "world",
@@ -79,4 +78,5 @@ if __name__ == "__main__":
         debug=args.debug,
         port=args.port,
         host=args.host,
+        ssl_context="adhoc",
     )
