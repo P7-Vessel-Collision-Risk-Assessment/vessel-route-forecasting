@@ -74,6 +74,9 @@ if __name__ == "__main__":
 
     config = model.get_config()
 
+    print(f"Starting server on {args.host}:{args.port}")
+    print(f"Model: {model_path}")
+
     app.run(
         debug=args.debug,
         port=args.port,
