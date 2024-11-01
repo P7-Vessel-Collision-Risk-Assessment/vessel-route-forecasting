@@ -20,14 +20,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
       - name: Authenticate with GitHub Container Registry
         env:
           CR_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -42,8 +34,8 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}/vrf:${{ github.sha }}
             ghcr.io/${{ github.repository }}/vrf:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   deploy:
     runs-on: ubuntu-latest
