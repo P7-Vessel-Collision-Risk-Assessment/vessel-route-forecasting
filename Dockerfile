@@ -18,7 +18,7 @@ COPY requirements.txt /app/requirements.txt
 
 # Install Python packages
 RUN pip install --upgrade pip
-RUN pip install --ignore-installed -r requirements.txt
+RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
 
 
 # Copy the local files to the container
