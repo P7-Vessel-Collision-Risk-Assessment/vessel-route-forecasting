@@ -2,16 +2,16 @@ import pytest
 import json
 import numpy as np
 from src.app import create_app
-
-# Ignore deprecation warnings
-import warnings
-
-warnings.filterwarnings("ignore", message="The distutils package is deprecated")
+from src.utils import get_model_path
 
 
 @pytest.fixture
 def app():
-    model_path = "rd9_epoch100_h1n350_ffn150_final_model.keras"
+    model_path = get_model_path()
+
+    if not model_path:
+        raise ValueError("Model path not found")
+
     app = create_app(model_path, debug=True)
     return app
 
@@ -38,7 +38,7 @@ def test_predict(client):
     batch_size = 1  # Testing with a batch of 1
     time_steps = 20
     num_features = 3
-    data = {"data": np.random.random((batch_size, time_steps, num_features)).tolist()}
+    data = {"data": np.random.random((1, 20, 3)).tolist()}
     response = client.post("/predict", json=data)
     assert response.status_code == 200
     data = json.loads(response.data)

@@ -1,6 +1,7 @@
 [tool.pytest.ini_options]
 pythonpath = "src"
 filterwarnings = "ignore::DeprecationWarning:tensorflow"
+env = ["MODEL_PATH=data/model/model.keras"]
 
 [tool.ruff]
 line-length = 127

@@ -3,15 +3,15 @@ import tensorflow as tf
 import argparse
 from flask import Flask, request, jsonify
 
-from utils import dist_euclidean
+from utils import dist_euclidean, get_model_path
 
 
-def create_app(model_path, debug=False):
+def create_app(model_path: str, debug=False) -> Flask:
     app = Flask(__name__)
 
     starttime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    model = tf.keras.models.load_model(
+    model = tf.keras.models.load_model(  # type: ignore
         model_path, custom_objects={"dist_euclidean": dist_euclidean}
     )
 
@@ -53,9 +53,12 @@ if __name__ == "__main__":
     parser.add_argument("--host", type=str, default="0.0.0.0")
     args = parser.parse_args()
 
-    model_path = "rd9_epoch100_h1n350_ffn150_final_model.keras"
+    model_path = get_model_path()
     if args.model_path:
         model_path = args.model_path
+
+    if not model_path:
+        raise ValueError("Model path not provided or set in the environment")
 
     app = create_app(model_path, args.debug)
 

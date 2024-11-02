@@ -1,4 +1,5 @@
 import tensorflow as tf
+import os
 
 
 @tf.keras.utils.register_keras_serializable()
@@ -12,3 +13,7 @@ def dist_euclidean(y_true, y_pred):
         ),
         axis=-1,
     )
+
+
+def get_model_path() -> str | None:
+    return os.environ.get("MODEL_PATH", None)
