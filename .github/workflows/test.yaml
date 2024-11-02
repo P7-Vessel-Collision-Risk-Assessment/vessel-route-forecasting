@@ -18,6 +18,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Fetch model
+        run: |
+          scp -i ~/.ssh/id_rsa ubuntu@${{ secrets.HOST }}:/home/ubuntu/vcra/vrf/data/model/model.keras data/model/model.keras
+
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
