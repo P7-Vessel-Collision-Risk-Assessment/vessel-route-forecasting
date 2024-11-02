@@ -3,7 +3,7 @@ import tensorflow as tf
 import argparse
 from flask import Flask, request, jsonify
 
-from src.utils import dist_euclidean
+from utils import dist_euclidean
 
 
 def create_app(model_path, debug=False):

@@ -1,0 +1,6 @@
+[tool.pytest.ini_options]
+pythonpath = "src"
+filterwarnings = "ignore::DeprecationWarning:tensorflow"
+
+[tool.ruff]
+line-length = 127
