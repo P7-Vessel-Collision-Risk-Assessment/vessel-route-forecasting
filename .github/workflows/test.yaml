@@ -18,12 +18,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
       - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install python3-opengl swig libgsl-dev
           python -m pip install --upgrade pip
-          pip install ".[test]"
+          pip install -r requirements.txt
 
       - name: Lint with Ruff
         run: |
