@@ -5,4 +5,5 @@ pandas
 scikit-learn
 flask
 pytest
+pytest-env
 ruff
