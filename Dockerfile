@@ -4,7 +4,7 @@ FROM tensorflow/tensorflow:latest-gpu
 # Set the working directory
 WORKDIR /app
 
-# Install additional dependencies if needed
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libssl-dev \
@@ -13,12 +13,12 @@ RUN apt-get update && apt-get install -y \
     git \
     && apt-get clean
 
-
+# Copy the requirements file
 COPY requirements.txt /app/requirements.txt
 
-# Install specific Python packages
+# Install Python packages
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
+RUN pip install --ignore-installed -r requirements.txt
 
 
 # Copy the local files to the container
@@ -26,5 +26,4 @@ COPY . /app
 
 EXPOSE 8080
 
-# Command to run your app (e.g., a Python script or Jupyter Notebook)
 CMD ["python", "src/app.py", "--port", "8080"]
