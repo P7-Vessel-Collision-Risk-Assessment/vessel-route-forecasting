@@ -1,0 +1,35 @@
+name: Build and Deploy to K3s
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install python3-opengl swig libgsl-dev
+          python -m pip install --upgrade pip
+          pip install ".[test]"
+
+      - name: Lint with Ruff
+        run: |
+          ruff check src
+          ruff format src
+
+      - name: Test with pytest
+        run: |
+          pytest
