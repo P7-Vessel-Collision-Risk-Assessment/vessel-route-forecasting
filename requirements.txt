@@ -1,6 +1,8 @@
 tensorflow[and-cuda]
+keras
 numpy
 pandas
 scikit-learn
 flask
-# pyopenssl
+pytest
+ruff
