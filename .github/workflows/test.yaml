@@ -26,8 +26,12 @@ jobs:
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
       - name: Fetch model
+        env:
+          MODEL_DIR: data/model
+          MODEL_NAME: model.keras
         run: |
-          scp -i ~/.ssh/id_rsa ubuntu@${{ secrets.HOST }}:/home/ubuntu/vcra/vrf/data/model/model.keras data/model/model.keras
+          mkdir -p ${{ env.MODEL_DIR }}
+          scp -i ~/.ssh/id_rsa ubuntu@${{ secrets.HOST }}:/home/ubuntu/vcra/vrf/${{ env.MODEL_DIR }}/${{ env.MODEL_NAME }} ${{ env.MODEL_DIR }}
 
       - name: Set up Python
         uses: actions/setup-python@v3
