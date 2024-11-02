@@ -2,10 +2,13 @@ version: '3'
 services:
   vrf:
     build: .
-    image: vrf
+    image: vrf:latest
     expose:
       - 8080
     ports:
       - '8080:8080'
+    command: ['python', 'src/app.py', '--port', '8080']
     volumes:
-      - ./vrf:/app/vrf
+      - ./data:/app/data
+    environment:
+      - MODEL_PATH=/app/data/model/model.keras

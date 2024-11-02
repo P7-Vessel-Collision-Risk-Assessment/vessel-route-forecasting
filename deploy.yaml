@@ -21,6 +21,16 @@ spec:
           ports:
             - containerPort: 8080
           command: ['python', 'src/app.py', '--port', '8080']
+          volumeMounts:
+            - name: vrf-volume
+              mountPath: /app/data
+          env:
+            - name: MODEL_PATH
+              value: /app/data/model/model.keras
+      volumes:
+        - name: vrf-volume
+          hostPath:
+            path: /home/ubuntu/vcra/vrf/data
       imagePullSecrets:
         - name: ghcr-secret
 
