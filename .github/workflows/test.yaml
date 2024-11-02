@@ -1,4 +1,4 @@
-name: Build and Deploy to K3s
+name: Test and Lint
 
 on:
   push:
