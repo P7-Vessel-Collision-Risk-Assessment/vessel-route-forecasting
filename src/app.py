@@ -39,7 +39,7 @@ def create_app(model_path: str, debug=False) -> Flask:
 
         data: dict = request.json
         inputs = tf.constant(data.get("data"), dtype=tf.float32)
-        pred = model.predict(inputs)
+        pred = model.predict(inputs, batch_size=1)
         return jsonify({"prediction": pred.tolist()})
 
     return app
