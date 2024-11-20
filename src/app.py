@@ -1,12 +1,13 @@
 from datetime import datetime
+from io import StringIO
+import pandas as pd
 import tensorflow as tf
 import argparse
 from flask import Flask, request, jsonify
 
-from utils import dist_euclidean, get_model_path
+from utils import dist_euclidean, get_model_path, get_norm_params_path, normalize_inputs, post_process_prediction
 
-
-def create_app(model_path: str, debug=False) -> Flask:
+def create_app(model_path: str, norm_params_path: str, debug=False) -> Flask:
     app = Flask(__name__)
 
     starttime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -16,6 +17,10 @@ def create_app(model_path: str, debug=False) -> Flask:
     )
 
     config = model.get_config()
+
+    norm_params = pd.read_json(norm_params_path)
+    norm_params = norm_params.transpose()
+    norm_params.columns = ["d", "dlon", "dlat"]
 
     @app.route("/")
     def info():
@@ -37,10 +42,15 @@ def create_app(model_path: str, debug=False) -> Flask:
         if not request.json:
             return jsonify({"error": "No data provided"})
 
-        data: dict = request.json
-        inputs = tf.constant(data.get("data"), dtype=tf.float32)
+        data_json = request.json
+        data_df = pd.read_json(StringIO(data_json.get("data")))
+        trajectory_df = pd.read_json(StringIO(data_json.get("trajectory")))
+        norm_input = normalize_inputs(data_df, norm_params)
+        inputs = tf.constant([norm_input.values], dtype=tf.float32)
         pred = model.predict(inputs, batch_size=1)
-        return jsonify({"prediction": pred.tolist()})
+        processed_pred = post_process_prediction(pred, trajectory_df, norm_params)
+
+        return jsonify({"prediction": processed_pred.to_dict(orient="records")})
 
     return app
 
@@ -48,6 +58,7 @@ def create_app(model_path: str, debug=False) -> Flask:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-path", "-m", type=str, required=False)
+    parser.add_argument("--norm-params-path", "-n", type=str, required=False)
     parser.add_argument("--debug", action="store_true", required=False)
     parser.add_argument("--port", type=int, default=5000)
     parser.add_argument("--host", type=str, default="0.0.0.0")
@@ -60,7 +71,14 @@ if __name__ == "__main__":
     if not model_path:
         raise ValueError("Model path not provided or set in the environment")
 
-    app = create_app(model_path, args.debug)
+    norm_params_path = get_norm_params_path()
+    if args.norm_params_path:
+        norm_params_path = args.norm_params_path
+    
+    if not norm_params_path:
+        raise ValueError("Normalization parameters path not provided or set in the environment")
+
+    app = create_app(model_path, norm_params_path, args.debug)
 
     print(f"Starting server on {args.host}:{args.port}")
     print(f"Model: {model_path}")

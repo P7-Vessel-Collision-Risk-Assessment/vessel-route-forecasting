@@ -7,3 +7,4 @@ flask
 pytest
 pytest-env
 ruff
+pyproj
