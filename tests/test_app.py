@@ -45,16 +45,12 @@ def test_predict(client):
     time_steps = 20
     num_features = 3
 
-    traj_pos = pd.DataFrame({
-        "utm_x": np.random.random(time_steps),
-        "utm_y": np.random.random(time_steps)
-    }).to_json(orient='records')
     data = pd.DataFrame({
-        "d": np.random.random(time_steps),
-        "dlon": np.random.random(time_steps),
-        "dlat": np.random.random(time_steps)
+        "timestamp": pd.Timestamp.now(),
+        "longitude": np.random.random(time_steps),
+        "latitude": np.random.random(time_steps)
     }).to_json(orient='records')
-    request = {"data": data, "trajectory": traj_pos}
+    request = {"data": data}
     response = client.post("/predict", json=request)
     assert response.status_code == 200
     data = json.loads(response.data)
