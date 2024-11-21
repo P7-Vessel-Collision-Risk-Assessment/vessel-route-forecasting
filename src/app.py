@@ -5,7 +5,7 @@ import tensorflow as tf
 import argparse
 from flask import Flask, request, jsonify
 
-from utils import dist_euclidean, get_model_path, get_norm_params_path, normalize_inputs, post_process_prediction
+from utils import dist_euclidean, get_model_path, get_norm_params_path, post_process_prediction, pre_process_data
 
 def create_app(model_path: str, norm_params_path: str, debug=False) -> Flask:
     app = Flask(__name__)
@@ -44,11 +44,11 @@ def create_app(model_path: str, norm_params_path: str, debug=False) -> Flask:
 
         data_json = request.json
         data_df = pd.read_json(StringIO(data_json.get("data")))
-        trajectory_df = pd.read_json(StringIO(data_json.get("trajectory")))
-        norm_input = normalize_inputs(data_df, norm_params)
+
+        norm_input, data_df = pre_process_data(data_df, norm_params)
         inputs = tf.constant([norm_input.values], dtype=tf.float32)
         pred = model.predict(inputs, batch_size=1)
-        processed_pred = post_process_prediction(pred, trajectory_df, norm_params)
+        processed_pred = post_process_prediction(pred, data_df, norm_params)
 
         return jsonify({"prediction": processed_pred.to_dict(orient="records")})
 

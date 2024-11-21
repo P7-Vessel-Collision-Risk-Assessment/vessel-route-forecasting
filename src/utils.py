@@ -29,6 +29,9 @@ def normalize_inputs(df, norm_params):
             normalized_df[col] = (df[col] - norm_params.loc["sc_x_mean", feature]) / norm_params.loc["sc_x_std", feature]
     return normalized_df
 
+def timestamp_to_unix(timestamp: pd.DataFrame):
+    return (timestamp - pd.Timestamp("1970-01-01")) // pd.Timedelta("1s")
+
 def wgs84_to_utm(lon, lat, inverse=False):
     
     # proj_string = f"+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
@@ -36,6 +39,33 @@ def wgs84_to_utm(lon, lat, inverse=False):
         
     result_x, result_y = myProj(lon, lat, inverse=inverse)
     return result_x, result_y
+
+def calc_dt_dutmx_dutmy(timestamps, utm_xs, utm_ys):
+    dt = timestamps.diff().values
+    dutm_x = utm_xs.diff().values
+    dutm_y = utm_ys.diff().values
+    
+    return dt, dutm_x, dutm_y
+
+def pre_process_data(data: pd.DataFrame, norm_params: pd.DataFrame):
+        utm_xs, utm_ys = wgs84_to_utm(data["longitude"].values, data["latitude"].values)
+        data["t"] = timestamp_to_unix(data["timestamp"])
+        data["utm_x"] = utm_xs
+        data["utm_y"] = utm_ys
+
+        # calculate deltas
+        dts, dutm_xs, dutm_ys = calc_dt_dutmx_dutmy(data["t"], data["utm_x"], data["utm_y"])
+        data["dt"] = dts
+        data["dutm_x"] = dutm_xs
+        data["dutm_y"] = dutm_ys
+
+        # the first row has no previous row to calculate delta, so we get NaN
+        data = data.dropna()
+
+        # normalize inputs
+        normalized_inputs = normalize_inputs(data[["dt", "dutm_x", "dutm_y"]], norm_params)
+
+        return normalized_inputs, data
 
 def post_process_prediction(prediction: list, trajectory: pd.DataFrame, norm_param):
     look_ahead_points = 32
