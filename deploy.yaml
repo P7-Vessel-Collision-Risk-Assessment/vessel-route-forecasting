@@ -27,6 +27,8 @@ spec:
           env:
             - name: MODEL_PATH
               value: /app/data/model/model.keras
+            - name: NORM_PARAMS_PATH
+              value: /app/data/model/norm_params.json
       volumes:
         - name: vrf-volume
           hostPath:

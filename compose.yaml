@@ -7,8 +7,9 @@ services:
       - 8080
     ports:
       - '8080:8080'
-    command: ['python', 'src/app.py', '--port', '8080']
+    command: [ 'python', 'src/app.py', '--port', '8080' ]
     volumes:
       - ./data:/app/data
     environment:
       - MODEL_PATH=/app/data/model/model.keras
+      - NORM_PARAMS_PATH=/app/data/model/norm_params.json
