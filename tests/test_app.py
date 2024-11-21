@@ -1,8 +1,9 @@
+import pandas as pd
 import pytest
 import json
 import numpy as np
 from src.app import create_app
-from src.utils import get_model_path
+from src.utils import get_model_path, get_norm_params_path
 
 
 @pytest.fixture
@@ -12,7 +13,12 @@ def app():
     if not model_path:
         raise ValueError("Model path not found")
 
-    app = create_app(model_path, debug=True)
+    norm_params_path = get_norm_params_path()
+
+    if not norm_params_path:
+        raise ValueError("Normalization parameters path not found")
+    
+    app = create_app(model_path, norm_params_path, debug=True)
     return app
 
 
@@ -38,8 +44,14 @@ def test_predict(client):
     batch_size = 1  # Testing with a batch of 1
     time_steps = 20
     num_features = 3
-    data = {"data": np.random.random((1, 20, 3)).tolist()}
-    response = client.post("/predict", json=data)
+
+    data = pd.DataFrame({
+        "timestamp": pd.Timestamp.now(),
+        "longitude": np.random.random(time_steps),
+        "latitude": np.random.random(time_steps)
+    }).to_json(orient='records')
+    request = {"data": data}
+    response = client.post("/predict", json=request)
     assert response.status_code == 200
     data = json.loads(response.data)
     assert "prediction" in data
