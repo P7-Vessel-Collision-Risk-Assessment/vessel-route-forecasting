@@ -5,7 +5,14 @@ import tensorflow as tf
 import argparse
 from flask import Flask, request, jsonify
 
-from utils import dist_euclidean, get_model_path, get_norm_params_path, post_process_prediction, pre_process_data
+from utils import (
+    dist_euclidean,
+    get_model_path,
+    get_norm_params_path,
+    post_process_prediction,
+    pre_process_data,
+)
+
 
 def create_app(model_path: str, norm_params_path: str, debug=False) -> Flask:
     app = Flask(__name__)
@@ -74,9 +81,11 @@ if __name__ == "__main__":
     norm_params_path = get_norm_params_path()
     if args.norm_params_path:
         norm_params_path = args.norm_params_path
-    
+
     if not norm_params_path:
-        raise ValueError("Normalization parameters path not provided or set in the environment")
+        raise ValueError(
+            "Normalization parameters path not provided or set in the environment"
+        )
 
     app = create_app(model_path, norm_params_path, args.debug)
 
