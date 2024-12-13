@@ -64,12 +64,12 @@ def create_app(model_path: str, norm_params_path: str, debug=False) -> Flask:
             inputs = tf.constant(norm_input_list, dtype=tf.float32)
             pred = model.predict(inputs, batch_size=32)
 
-            predictions = []
+            predictions = {}
             for i in range(pred.shape[0]):
                 processed_pred = post_process_prediction(pred[i], pd.DataFrame(data_df_list[i]), norm_params)
-                predictions.append(processed_pred)
+                predictions[i] = processed_pred.to_dict(orient="records")
 
-            return jsonify({"prediction": processed_pred.to_dict(orient="records")})
+            return jsonify({"prediction": predictions})
         except Exception as e:
             return jsonify({"error": str(e)})
 
