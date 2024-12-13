@@ -149,4 +149,9 @@ def post_process_prediction(prediction: list, trajectory: pd.DataFrame, norm_par
 
     df_results = pd.concat([denormalized, pd.DataFrame(results)], axis=1)
 
+    df_results["mmsi"] = trajectory["mmsi"].values[0]
+    df_results["timestamp"] = trajectory["timestamp"].values
+    df_results["lon"] = trajectory["longitude"].values
+    df_results["lat"] = trajectory["latitude"].values
+
     return df_results
