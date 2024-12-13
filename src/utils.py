@@ -93,8 +93,7 @@ def post_process_prediction(prediction: list, trajectory: pd.DataFrame, norm_par
     features_outputs = [f"dutm_x(t+{i})" for i in range(1, look_ahead_points + 1)] + [
         f"dutm_y(t+{i})" for i in range(1, look_ahead_points + 1)
     ]
-
-    normalized = pd.DataFrame(prediction[0], columns=features_outputs)
+    normalized = pd.DataFrame(prediction, columns=features_outputs)
 
     # denormalize
     denormalized = pd.DataFrame()

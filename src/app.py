@@ -46,18 +46,32 @@ def create_app(model_path: str, norm_params_path: str, debug=False) -> Flask:
 
     @app.route("/predict", methods=["POST"])
     def predict():
-        if not request.json:
-            return jsonify({"error": "No data provided"})
+        try:
+            if not request.json:
+                return jsonify({"error": "No data provided"})
 
-        data_json = request.json
-        data_df = pd.read_json(StringIO(data_json.get("data")))
+            data_json = request.json
+            data_df = pd.read_json(StringIO(data_json.get("data")))
 
-        norm_input, data_df = pre_process_data(data_df, norm_params)
-        inputs = tf.constant([norm_input.values], dtype=tf.float32)
-        pred = model.predict(inputs, batch_size=1)
-        processed_pred = post_process_prediction(pred, data_df, norm_params)
+            norm_input_list = []
+            data_df_list = []
+            grouped = data_df.groupby("mmsi")
+            for _, group in grouped:
+                norm_input, _ = pre_process_data(group, norm_params)
+                norm_input_list.append(norm_input.values)
+                data_df_list.append(group)
 
-        return jsonify({"prediction": processed_pred.to_dict(orient="records")})
+            inputs = tf.constant(norm_input_list, dtype=tf.float32)
+            pred = model.predict(inputs, batch_size=32)
+
+            predictions = []
+            for i in range(pred.shape[0]):
+                processed_pred = post_process_prediction(pred[i], pd.DataFrame(data_df_list[i]), norm_params)
+                predictions.append(processed_pred)
+
+            return jsonify({"prediction": processed_pred.to_dict(orient="records")})
+        except Exception as e:
+            return jsonify({"error": str(e)})
 
     return app
 
