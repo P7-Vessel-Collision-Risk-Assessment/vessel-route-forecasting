@@ -52,12 +52,24 @@ def create_app(model_path: str, norm_params_path: str, debug=False) -> Flask:
         data_json = request.json
         data_df = pd.read_json(StringIO(data_json.get("data")))
 
-        norm_input, data_df = pre_process_data(data_df, norm_params)
-        inputs = tf.constant([norm_input.values], dtype=tf.float32)
-        pred = model.predict(inputs, batch_size=1)
-        processed_pred = post_process_prediction(pred, data_df, norm_params)
+        norm_input_list = []
+        data_df_list = []
+        grouped = data_df.groupby("trajectory_id")
+        for _, group in grouped:
+            norm_input, data = pre_process_data(group, norm_params)
+            norm_input_list.append(norm_input.values)
+            data_df_list.append(data)
 
-        return jsonify({"prediction": processed_pred.to_dict(orient="records")})
+        inputs = tf.constant(norm_input_list, dtype=tf.float32)
+        
+        pred = model.predict(inputs, batch_size=32)
+
+        predictions = pd.DataFrame()
+        for i in range(pred.shape[0]):
+            processed_pred = post_process_prediction(pred[i], pd.DataFrame(data_df_list[i]), norm_params)
+            predictions = pd.concat([predictions, processed_pred])
+
+        return jsonify({"prediction": predictions.to_dict(orient="records")})
 
     return app
 
