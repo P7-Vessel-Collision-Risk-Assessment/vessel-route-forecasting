@@ -8,3 +8,4 @@ pytest
 pytest-env
 ruff
 pyproj
+waitress
