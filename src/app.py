@@ -108,6 +108,7 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true", required=False)
     parser.add_argument("--port", type=int, default=5000)
     parser.add_argument("--host", type=str, default="0.0.0.0")
+    parser.add_argument("--threads", "-t", type=int, default=8)
     args = parser.parse_args()
 
     model_path = get_model_path()
@@ -136,7 +137,7 @@ if __name__ == "__main__":
     if not args.debug:
         from waitress import serve
 
-        serve(app, host=args.host, port=args.port)
+        serve(app, host=args.host, port=args.port, threads=args.threads)
     else:
         app.run(
             debug=args.debug,
