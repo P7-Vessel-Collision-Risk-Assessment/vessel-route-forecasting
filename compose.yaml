@@ -7,7 +7,7 @@ services:
       - 8080
     ports:
       - '8080:8080'
-    command: [ 'python', 'src/app.py', '--port', '8080' ]
+    command: ['python', 'src/app.py', '--port', '8080', '--threads', '12']
     volumes:
       - ./data:/app/data
     environment:
