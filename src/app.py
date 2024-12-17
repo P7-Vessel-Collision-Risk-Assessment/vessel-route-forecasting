@@ -108,7 +108,6 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true", required=False)
     parser.add_argument("--port", type=int, default=5000)
     parser.add_argument("--host", type=str, default="0.0.0.0")
-    parser.add_argument("--threads", "-t", type=int, default=8)
     args = parser.parse_args()
 
     model_path = get_model_path()
@@ -127,20 +126,15 @@ if __name__ == "__main__":
             "Normalization parameters path not provided or set in the environment"
         )
 
-    app = create_app(model_path, norm_params_path, args.debug)
-
     print(f"Starting server on {args.host}:{args.port}")
     print(f"Debug mode: {args.debug}")
     print(f"Model: {model_path}")
     print(f"Normalization parameters: {norm_params_path}")
+    app = create_app(model_path, norm_params_path, args.debug)
 
-    if not args.debug:
-        from waitress import serve
-
-        serve(app, host=args.host, port=args.port, threads=args.threads)
+    if args.debug:
+        app.run(host=args.host, port=args.port, debug=True)
     else:
-        app.run(
-            debug=args.debug,
-            port=args.port,
-            host=args.host,
-        )
+        import uvicorn
+
+        uvicorn.run(app, host=args.host, port=args.port, interface="wsgi")
