@@ -1,5 +1,6 @@
 from datetime import datetime
 from io import StringIO
+import logging
 import pandas as pd
 import tensorflow as tf
 import argparse
@@ -61,15 +62,35 @@ def create_app(model_path: str, norm_params_path: str, debug=False) -> Flask:
             data_df_list.append(data)
 
         inputs = tf.constant(norm_input_list, dtype=tf.float32)
-        
+
         pred = model.predict(inputs, batch_size=32)
 
         predictions = pd.DataFrame()
         for i in range(pred.shape[0]):
-            processed_pred = post_process_prediction(pred[i], pd.DataFrame(data_df_list[i]), norm_params)
+            processed_pred = post_process_prediction(
+                pred[i], pd.DataFrame(data_df_list[i]), norm_params
+            )
             predictions = pd.concat([predictions, processed_pred])
 
         return jsonify({"prediction": predictions.to_dict(orient="records")})
+
+    # Logging
+    level = logging.DEBUG if debug else logging.INFO
+    logging.basicConfig(level=level, format="%(asctime)s %(levelname)s: %(message)s")
+
+    @app.before_request
+    def log_request_info():
+        app.logger.info(
+            f"Request: {request.remote_addr} {request.method} {request.url}"
+        )
+        app.logger.debug(f"Headers: {request.headers}")
+        app.logger.debug(f"Body: {request.get_data()}")
+
+    @app.after_request
+    def log_response_info(response):
+        app.logger.info(f"Response status: {response.status}")
+        app.logger.debug(f"Response headers: {response.headers}")
+        return response
 
     return app
 
@@ -102,10 +123,17 @@ if __name__ == "__main__":
     app = create_app(model_path, norm_params_path, args.debug)
 
     print(f"Starting server on {args.host}:{args.port}")
+    print(f"Debug mode: {args.debug}")
     print(f"Model: {model_path}")
+    print(f"Normalization parameters: {norm_params_path}")
 
-    app.run(
-        debug=args.debug,
-        port=args.port,
-        host=args.host,
-    )
+    if not args.debug:
+        from waitress import serve
+
+        serve(app, host=args.host, port=args.port)
+    else:
+        app.run(
+            debug=args.debug,
+            port=args.port,
+            host=args.host,
+        )
