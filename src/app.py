@@ -45,6 +45,10 @@ def create_app(model_path: str, norm_params_path: str, debug=False) -> Flask:
             }
         )
 
+    @app.route("/health")
+    def health():
+        return jsonify({"status": "ok"})
+
     @app.route("/predict", methods=["POST"])
     def predict():
         if not request.json:
@@ -80,16 +84,18 @@ def create_app(model_path: str, norm_params_path: str, debug=False) -> Flask:
 
     @app.before_request
     def log_request_info():
-        app.logger.info(
-            f"Request: {request.remote_addr} {request.method} {request.url}"
-        )
-        app.logger.debug(f"Headers: {request.headers}")
-        app.logger.debug(f"Body: {request.get_data()}")
+        if request.path != "/health":
+            app.logger.info(
+                f"Request: {request.remote_addr} {request.method} {request.url}"
+            )
+            app.logger.debug(f"Headers: {request.headers}")
+            app.logger.debug(f"Body: {request.get_data()}")
 
     @app.after_request
     def log_response_info(response):
-        app.logger.info(f"Response status: {response.status}")
-        app.logger.debug(f"Response headers: {response.headers}")
+        if request.path != "/health":
+            app.logger.info(f"Response status: {response.status}")
+            app.logger.debug(f"Response headers: {response.headers}")
         return response
 
     return app

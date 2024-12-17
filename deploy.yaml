@@ -39,22 +39,22 @@ spec:
               memory: 2Gi
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /
+              path: /health
               port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 5
+            initialDelaySeconds: 10
+            periodSeconds: 10
           startupProbe:
             httpGet:
-              path: /
+              path: /health
               port: 8080
-            failureThreshold: 30
-            periodSeconds: 5
+            failureThreshold: 60
+            periodSeconds: 10
       volumes:
         - name: vrf-volume
           hostPath:
