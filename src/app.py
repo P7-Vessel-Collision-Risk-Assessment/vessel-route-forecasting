@@ -137,4 +137,10 @@ if __name__ == "__main__":
     else:
         import uvicorn
 
-        uvicorn.run(app, host=args.host, port=args.port, interface="wsgi")
+        uvicorn.run(
+            app,
+            host=args.host,
+            port=args.port,
+            interface="wsgi",
+            log_level=logging.WARNING,
+        )

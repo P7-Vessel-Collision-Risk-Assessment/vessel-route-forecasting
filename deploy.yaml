@@ -40,18 +40,21 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
+              host: localhost
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /health
+              host: localhost
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 10
           startupProbe:
             httpGet:
               path: /health
+              host: localhost
               port: 8080
             failureThreshold: 60
             periodSeconds: 10
