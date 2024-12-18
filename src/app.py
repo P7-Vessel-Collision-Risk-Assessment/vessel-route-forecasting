@@ -132,15 +132,4 @@ if __name__ == "__main__":
     print(f"Normalization parameters: {norm_params_path}")
     app = create_app(model_path, norm_params_path, args.debug)
 
-    if args.debug:
-        app.run(host=args.host, port=args.port, debug=True)
-    else:
-        import uvicorn
-
-        uvicorn.run(
-            app,
-            host=args.host,
-            port=args.port,
-            interface="wsgi",
-            log_level=logging.WARNING,
-        )
+    app.run(host=args.host, port=args.port, debug=args.debug)
